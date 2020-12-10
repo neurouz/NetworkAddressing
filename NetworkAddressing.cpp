@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+#include <cmath>
 using namespace std;
 
 enum Mrezna_Klasa { A, B, C };
@@ -7,18 +9,6 @@ const char* MreznaKlasaChar[] = { "A Klasa - Velika mreza\n", "B Klasa - Srednja
 #define crt {cout<<"--------------------------------------------------------------------------------------\n";}
 
 auto crta = "\n-------------------------------\n";
-
-char* DodajString(const char* temp) {
-	char* n = new char[strlen(temp) + 1];
-	strcpy_s(n, strlen(temp) + 1, temp);
-	return n;
-}
-auto _GET_ERROR()
-{
-	char* error = new char[strlen("IP Adresa nije validna!") + 1];
-	strcpy_s(error, strlen("IP Adresa nije validna!") + 1, "IP Adresa nije validna!");
-	return error;
-}
 
 int DecimalToBinary(int broj) {
 	int novi = 0;
@@ -45,15 +35,15 @@ int BinaryToDecimal(int broj) {
 	int Decimalno = 0;
 	while (broj) {
 		int cifra = broj % 10;
-		if (cifra == 1) 
+		if (cifra == 1)
 			Decimalno += cifra * pow(2, stepen);
 		broj /= 10;
 		stepen++;
 	}
 	return Decimalno;
 }
-char* Get8Digit(int broj) {
-	char novi[9] = "00000000";
+string Get8Digit(int broj) {
+	string novi = "00000000";
 	int indeks = 7;
 	while (broj) {
 		const int cifra = broj % 10;
@@ -61,94 +51,85 @@ char* Get8Digit(int broj) {
 		indeks--;
 		broj /= 10;
 	}
-	char* n = new char[strlen(novi) + 1];
-	strcpy_s(n, strlen(novi) + 1, novi);
-	return n;
+	return novi;
 }
-char* GetAdresuMreze(char* ip, char* subnet) {
+string GetAdresuMreze(string ip, string subnet) {
 
-	if (ip == nullptr)
-		throw exception("IP Adresa nije validna!\n");
+	if (ip.c_str() == nullptr)
+		throw exception();
 
-	char temp[50];
-	for (size_t i = 0; i < strlen(ip); i++)
+	string temp;
+	for (size_t i = 0; i < ip.length(); i++)
 	{
-		if (ip[i] == '.') temp[i] = ip[i];
-		else if (ip[i] == '1' && subnet[i] == '1') temp[i] = '1';
-		else temp[i] = '0';
+		if (ip[i] == '.') temp += ip[i];
+		else if (ip[i] == '1' && subnet[i] == '1') temp += '1';
+		else temp += '0';
 	}
-	temp[strlen(ip)] = '\0';
-	int x = strlen(temp) + 1;
-	char* n = new char[x];
-	strcpy_s(n, x, temp);
-	return n;
+	return temp;
 }
-char* GetPrvuIskoristivu(char* mreza) {
+string GetPrvuIskoristivu(string mreza) {
 
-	if (mreza == nullptr)
-		throw exception("IP Adresa nije validna!\n");
+	if (mreza.c_str() == nullptr)
+		throw exception();
 
-	char PosljednjiOktet[9];
-	strcpy_s(PosljednjiOktet, 9, mreza + 27);
-	int broj = atoi(PosljednjiOktet);
+	string PosljednjiOktet = mreza.substr(27, 35);
+	int broj = stoi(PosljednjiOktet);
 	int noviBroj = BinaryToDecimal(broj);
 	noviBroj++;
 	broj = DecimalToBinary(noviBroj);
-	char* cat = Get8Digit(broj);
-	char* novi = new char[strlen(mreza) + 1];
-	strncpy_s(novi, strlen(mreza) + 1, mreza, 27);
-	strcat_s(novi, strlen(mreza) + 1, cat);
+	string cat = Get8Digit(broj);
+
+	string novi = mreza.substr(0, 27);
+	novi += cat;
+	
 	return novi;
 }
-char* GetBroadcastAdresu(int subnet, char* mreza) {
+string GetBroadcastAdresu(int subnet, string mreza) {
 
-	if (mreza == nullptr)
-		throw exception("IP Adresa nije validna!\n");
+	if (mreza.c_str() == nullptr)
+		throw exception();
 
-	char temp[50];
+	string temp;
 	for (size_t i = 0; i < subnet; i++)
 	{
-		if (mreza[i] == '.') { subnet++; temp[i] = mreza[i]; }
-		else temp[i] = mreza[i];
+		if (mreza[i] == '.') { subnet++; temp += mreza[i]; }
+		else temp += mreza[i];
 	}
-	for (size_t i = subnet; i < strlen(mreza); i++)
+	for (size_t i = subnet; i < mreza.length(); i++)
 	{
-		if (mreza[i] == '.') temp[i] = '.';
-		else temp[i] = '1';
+		if (mreza[i] == '.') temp += '.';
+		else temp += '1';
 	}
-	temp[35] = '\0';
-	char* n = new char[strlen(temp) + 1];
-	strcpy_s(n, strlen(temp) + 1, temp);
-	return n;
+
+	return temp;
 }
-char* GetZadnjuIskoristivu(char* broadcast) {
+string GetZadnjuIskoristivu(string broadcast) {
 
-	if (broadcast == nullptr)
-		throw exception("IP Adresa nije validna!\n");
+	if (broadcast.c_str() == nullptr)
+		throw exception();
 
-	char PosljednjiOktet[9];
-	strcpy_s(PosljednjiOktet, 9, broadcast + 27);
-	int broj = atoi(PosljednjiOktet);
+	string PosljednjiOktet = broadcast.substr(27, 35);
+	int broj = stoi(PosljednjiOktet);
 	int noviBroj = BinaryToDecimal(broj);
 	noviBroj--;
 	broj = DecimalToBinary(noviBroj);
-	char* cat = Get8Digit(broj);
-	char* novi = new char[strlen(broadcast) + 1];
-	strncpy_s(novi, strlen(broadcast) + 1, broadcast, 27);
-	strcat_s(novi, strlen(broadcast) + 1, cat);
+	string cat = Get8Digit(broj);
+
+	string novi = broadcast.substr(0, 27);
+	novi += cat;
+
 	return novi;
 }
 
-char* GetAdresuDecimalno(char* binarna) {
+string GetAdresuDecimalno(string binarna) {
 
-	if (binarna == nullptr)
-		throw exception("IP Adresa nije validna!\n");
+	if (binarna.c_str() == nullptr)
+		throw exception();
 
-	char temp[100];
 	int Okteti[4] = { 0,0,0,0 };
 	int stepen = 0;
 	int brojacOkteta = 3;
-	for (size_t i = strlen(binarna) - 1; i != -1; i--)
+	for (size_t i = binarna.length() - 1; i != -1; i--)
 	{
 		if (binarna[i] != '.') {
 			char znak = binarna[i];
@@ -161,84 +142,68 @@ char* GetAdresuDecimalno(char* binarna) {
 			stepen = 0;
 		}
 	}
-	char t1[8], t2[8], t3[8], t4[8];
 
 	int n1 = BinaryToDecimal(Okteti[0]);
 	int n2 = BinaryToDecimal(Okteti[1]);
 	int n3 = BinaryToDecimal(Okteti[2]);
 	int n4 = BinaryToDecimal(Okteti[3]);
 
-	_itoa_s(n1, t1, 10);
-	_itoa_s(n2, t2, 10);
-	_itoa_s(n3, t3, 10);
-	_itoa_s(n4, t4, 10);
+	string t1 = to_string(n1);
+	string t2 = to_string(n2);
+	string t3 = to_string(n3);
+	string t4 = to_string(n4);
 
-	strcpy_s(temp, t1);
-	strcat_s(temp, ".");
-	strcat_s(temp, t2);
-	strcat_s(temp, ".");
-	strcat_s(temp, t3);
-	strcat_s(temp, ".");
-	strcat_s(temp, t4);
+	string temp = t1;
+	temp += "." + t2 + "." + t3 + "." + t4;
 
-	char* newIP = new char[strlen(temp) + 1];
-	strcpy_s(newIP, strlen(temp) + 1, temp);
-	return newIP;
+	return temp;
 }
 
 class SubnetMask
 {
 public:
 	SubnetMask(int sn) : subnet(sn) {
-		_subnetMask = new char[2];
-		strcpy_s(_subnetMask, 2, " ");
 		if (sn <= 8) klasa = A;
 		if (sn > 8 && sn <= 16) klasa = B;
 		if (sn > 16) klasa = C;
-	};
-	SubnetMask() {
-		_subnetMask = new char[2];
-		strcpy_s(_subnetMask, 2, " ");
-		subnet = 0;
-		if (subnet <= 8) Mrezna_Klasa(A);
-		if (subnet > 8 && subnet <= 16) Mrezna_Klasa(B);
-		if (subnet > 16) Mrezna_Klasa(C);
-	};
+	}
+
+	static bool IsValid(int subnet)
+	{
+		return subnet > 1 && subnet < 32;
+	}
+
 	~SubnetMask() {
-		delete[]_subnetMask; _subnetMask = nullptr;
 		subnet = 0;
-	};
+	}
 
 	void LoadSubnetMask() {
-		char temp[36] = "00000000.00000000.00000000.00000000";
+		string temp = "00000000.00000000.00000000.00000000";
 		int kopija = subnet;
 		for (size_t i = 0; i < kopija; i++)
 		{
 			if (temp[i] == '.') kopija++;
 			else temp[i] = '1';
 		}
-
-		delete[]_subnetMask; _subnetMask = nullptr;
-		_subnetMask = new char[strlen(temp) + 1];
-		strcpy_s(_subnetMask, strlen(temp) + 1, temp);
+		_subnetMask = temp;
 	}
 	void PrintSubnetMask() const {
 		cout << "\nSubnet:\t\t\t/" << subnet << endl;
 		cout << "Subnet maska:\t\t" << _subnetMask;
 		cout << "  |  " << GetAdresuDecimalno(_subnetMask) << endl;
 	}
-	char* GetSubnetBinary() const {
+	string GetSubnetBinary() const {
 		return _subnetMask;
 	}
 	int GetSubnetDecimal() const {
 		return subnet;
 	}
-	Mrezna_Klasa GetKlasu() const{
+	Mrezna_Klasa GetKlasu() const {
 		return klasa;
 	}
 
 private:
-	char* _subnetMask;
+	string _subnetMask;
 	Mrezna_Klasa klasa;
 	int subnet;
 };
@@ -246,33 +211,24 @@ private:
 class IP_Adress
 {
 public:
-	IP_Adress() {
-		_ip = nullptr;
-		_ip_binary = nullptr;
-	};
-	~IP_Adress() {
-		delete[]_ip; _ip = nullptr;
-		delete[]_ip_binary; _ip_binary = nullptr;
-	};
-
-	void Add_IP(const char* IP) {
+	void Add_IP(string IP) {
 		if (CheckValid(IP)) {
-			_ip = DodajString(IP);
+			_ip = IP;
 		}
 		else
 			_valid = false;
 	}
-	bool CheckValid(const char* ip) const {
-		if (strlen(ip) > 15)
+	static bool CheckValid(string ip) {
+		if (ip.length() > 15)
 			return false;
 
 		bool check = true; int brCif = 0;
 
-		for (size_t i = 0; i < strlen(ip); i++)
+		for (size_t i = 0; i < ip.length(); i++)
 		{
 			if (ip[i] == '-') return false;
 		}
-		for (size_t i = 0; i < strlen(ip); i++)
+		for (size_t i = 0; i < ip.length(); i++)
 		{
 			if (ip[i] == '.') {
 				if (brCif > 3) return false;
@@ -284,7 +240,7 @@ public:
 		int Okteti[4] = { 0,0,0,0 };
 		int stepen = 0;
 		int brojacOkteta = 3;
-		for (size_t i = strlen(ip) - 1; i != -1; i--)
+		for (size_t i = ip.length() - 1; i != -1; i--)
 		{
 			if (ip[i] != '.') {
 				char znak = ip[i];
@@ -307,13 +263,12 @@ public:
 	}
 	void convert_to_binary() {
 
-		if (_ip == nullptr) return;
+		if (_ip.c_str() == nullptr) return;
 
-		char temp[100];
 		int Okteti[4] = { 0,0,0,0 };
 		int stepen = 0;
 		int brojacOkteta = 3;
-		for (size_t i = strlen(_ip) - 1; i != -1; i--)
+		for (size_t i = _ip.length() - 1; i != -1; i--)
 		{
 			if (_ip[i] != '.') {
 				char znak = _ip[i];
@@ -333,47 +288,59 @@ public:
 		int n3 = DecimalToBinary(Okteti[2]);
 		int n4 = DecimalToBinary(Okteti[3]);
 
-		strcpy_s(temp, Get8Digit(n1));
-		strcat_s(temp, ".");
-		strcat_s(temp, Get8Digit(n2));
-		strcat_s(temp, ".");
-		strcat_s(temp, Get8Digit(n3));
-		strcat_s(temp, ".");
-		strcat_s(temp, Get8Digit(n4));
+		string temp = Get8Digit(n1);
+		temp += "." + Get8Digit(n2) + "." + Get8Digit(n3) + "." + Get8Digit(n4);
 
-		_ip_binary = new char[strlen(temp) + 1];
-		strcpy_s(_ip_binary, strlen(temp) + 1, temp);
+		_ip_binary = temp;
 	}
 	void PrintIP() const {
-		if (_ip != nullptr) {
+		if (_ip.c_str() != nullptr) {
 			crt;
 			cout << "IP Adresa (Decimalno):\t" << _ip << endl;
 		}
-		if (_ip_binary != nullptr) {
+		if (_ip_binary.c_str() != nullptr) {
 			cout << "IP Adresa (Binarno):\t" << _ip_binary << endl;
 		}
 	}
-	char* GetIPBinary() const {
+	string GetIPBinary() const {
 		return _ip_binary;
 	}
-	char* GetIPDecimal() const {
+	string GetIPDecimal() const {
 		return _ip;
 	}
 
 private:
-	char* _ip;
-	char* _ip_binary;
+	string _ip;
+	string _ip_binary;
 	bool _valid = true;
 };
 
 int main() {
 
+	string ip_address;
+	getline(cin, ip_address);
+	
+	if(!IP_Adress::CheckValid(ip_address))
+	{
+		cout << "> ERROR: IP Address is not valid.";
+		return -1;
+	}
+
+	int subnet;
+	cin >> subnet;
+
+	if(!SubnetMask::IsValid(subnet))
+	{
+		cout << "> ERROR: Value of subnet mask must be between 1 and 32.";
+		return -1;
+	}
+
 	IP_Adress IP1;
-	IP1.Add_IP("192.168.1.104");
+	IP1.Add_IP(ip_address);
 	IP1.convert_to_binary();
 	IP1.PrintIP();
 
-	SubnetMask mask1(24);
+	SubnetMask mask1(subnet);
 	mask1.LoadSubnetMask();
 	mask1.PrintSubnetMask();
 
@@ -382,16 +349,16 @@ int main() {
 	crt;
 
 	try {
-		char* Adresa_mreze = GetAdresuMreze(IP1.GetIPBinary(), mask1.GetSubnetBinary());
+		string Adresa_mreze = GetAdresuMreze(IP1.GetIPBinary(), mask1.GetSubnetBinary());
 		cout << "\nAdresa mreze:\t\t" << Adresa_mreze;
 		cout << "  |  " << GetAdresuDecimalno(Adresa_mreze) << endl;
-		char* Prva_iskoristiva = GetPrvuIskoristivu(Adresa_mreze);
+		string Prva_iskoristiva = GetPrvuIskoristivu(Adresa_mreze);
 		cout << "Prva iskoristiva:\t" << Prva_iskoristiva;
 		cout << "  |  " << GetAdresuDecimalno(Prva_iskoristiva) << endl;
-		char* Broadcast_adresa = GetBroadcastAdresu(mask1.GetSubnetDecimal(), IP1.GetIPBinary());
+		string Broadcast_adresa = GetBroadcastAdresu(mask1.GetSubnetDecimal(), IP1.GetIPBinary());
 		cout << "Broadcast adresa:\t" << Broadcast_adresa;
 		cout << "  |  " << GetAdresuDecimalno(Broadcast_adresa) << endl;
-		char* Zadnja_iskoristiva = GetZadnjuIskoristivu(Broadcast_adresa);
+		string Zadnja_iskoristiva = GetZadnjuIskoristivu(Broadcast_adresa);
 		cout << "Posljednja iskoristiva:\t" << Zadnja_iskoristiva;
 		cout << "  |  " << GetAdresuDecimalno(Zadnja_iskoristiva) << endl;
 
@@ -399,11 +366,6 @@ int main() {
 		const int host = pow(2, stepen) - 2;
 		cout << "Ukupno hostova:\t\t" << host << endl;
 		crt;
-
-		delete[] Adresa_mreze; Adresa_mreze = nullptr;
-		delete[] Prva_iskoristiva; Prva_iskoristiva = nullptr;
-		delete[] Zadnja_iskoristiva; Zadnja_iskoristiva = nullptr;
-		delete[] Broadcast_adresa; Broadcast_adresa = nullptr;
 	}
 	catch (const exception& e) { cout << "Exception error :: " << e.what(); }
 
